@@ -1,726 +1,101 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบันทึกข้อมูลการฝากครรภ์</title>
-    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <title>ล็อกอินผ่าน LINE</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500&display=swap');
+    
+    body {
+      font-family: 'Kanit', sans-serif;
+      background-color: #fef6f9;
+      color: #5a2a4a;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
 
-        body {
-            font-family: 'Prompt', sans-serif;
-            background: linear-gradient(135deg, #FFE5E5 0%, #E5F3FF 25%, #F0E5FF 50%, #E5FFE5 75%, #FFF0E5 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
-        }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
 
-        .container {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 30px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            animation: slideIn 0.8s ease-out;
-            position: relative;
-        }
+    #status {
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(50px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
+    button.pastel-btn {
+      background-color: #ffd6e8;
+      border: 2px solid #ffa6c9;
+      border-radius: 15px;
+      color: #5a2a4a;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 14px 40px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(255, 182, 193, 0.3);
+      transition: 0.3s;
+    }
 
-        .header {
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 4px;
-            background: linear-gradient(90deg, #FFB6C1, #E6E6FA, #B0E0E6);
-            border-radius: 2px;
-        }
-
-        .header h1 {
-            color: #8B4B9C;
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #FF8A95, #B8A9FF, #8ECAE6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .header p {
-            color: #9B7CB8;
-            font-size: 1.1em;
-            font-weight: 400;
-            margin-bottom: 20px;
-        }
-
-        .emoji-decoration {
-            font-size: 3em;
-            margin: 20px 0;
-            animation: bounce 2s infinite;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-15px);
-            }
-            60% {
-                transform: translateY(-8px);
-            }
-        }
-
-        .line-login-btn {
-            background: linear-gradient(45deg, #FFB6C1, #DDA0DD, #B0E0E6);
-            color: white;
-            border: none;
-            padding: 18px 35px;
-            font-size: 1.3em;
-            font-weight: 600;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            box-shadow: 0 15px 35px rgba(255, 182, 193, 0.4);
-            margin: 20px 0;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .line-login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .line-login-btn:hover::before {
-            left: 100%;
-        }
-
-        .line-login-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 45px rgba(255, 182, 193, 0.5);
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            text-align: left;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: #8B4B9C;
-            font-weight: 600;
-            font-size: 1.1em;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #E6E6FA;
-            border-radius: 15px;
-            font-size: 1em;
-            font-family: 'Prompt', sans-serif;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-            color: #6B4C73;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #DDA0DD;
-            box-shadow: 0 0 0 4px rgba(221, 160, 221, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .submit-btn {
-            background: linear-gradient(45deg, #FFB6C1, #F0C8D4, #E6E6FA);
-            color: #8B4B9C;
-            border: none;
-            padding: 18px 35px;
-            font-size: 1.2em;
-            font-weight: 600;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            box-shadow: 0 15px 35px rgba(240, 200, 212, 0.4);
-            width: 100%;
-            margin-top: 25px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 45px rgba(240, 200, 212, 0.5);
-        }
-
-        .logout-btn {
-            background: linear-gradient(45deg, #D3D3D3, #E6E6FA);
-            color: #8B4B9C;
-            border: none;
-            padding: 12px 25px;
-            font-size: 1em;
-            font-weight: 500;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(211, 211, 211, 0.4);
-        }
-
-        .welcome-section {
-            background: linear-gradient(135deg, #FFE5E5 0%, #E5F3FF 50%, #F0E5FF 100%);
-            border-radius: 20px;
-            padding: 35px;
-            margin-bottom: 30px;
-            text-align: center;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .welcome-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: shimmer 3s linear infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .welcome-section h2 {
-            color: #8B4B9C;
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .user-info {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            position: relative;
-            z-index: 1;
-        }
-
-        .user-info p {
-            color: #8B4B9C;
-            font-size: 1.1em;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 25px;
-            height: 25px;
-            border: 3px solid #E6E6FA;
-            border-top: 3px solid #DDA0DD;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .emoji-float {
-            position: fixed;
-            font-size: 2em;
-            pointer-events: none;
-            z-index: 1000;
-            animation: float 4s ease-in-out infinite;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px) rotate(0deg);
-            }
-            25% {
-                transform: translateY(-20px) rotate(5deg);
-            }
-            50% {
-                transform: translateY(-10px) rotate(0deg);
-            }
-            75% {
-                transform: translateY(-25px) rotate(-5deg);
-            }
-        }
-
-        .background-elements {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .background-elements::before {
-            content: '';
-            position: absolute;
-            top: 10%;
-            left: 10%;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, rgba(255, 182, 193, 0.3) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        .background-elements::after {
-            content: '';
-            position: absolute;
-            bottom: 20%;
-            right: 15%;
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, rgba(221, 160, 221, 0.3) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite reverse;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 0.7;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0.3;
-            }
-        }
-
-        .form-section {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 240, 245, 0.9) 100%);
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-        }
-
-        .swal2-popup {
-            border-radius: 20px !important;
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
-        }
-    </style>
+    button.pastel-btn:hover {
+      background-color: #ffb6cc;
+      border-color: #ff7fa3;
+    }
+  </style>
 </head>
 <body>
-    <div class="background-elements"></div>
-    
-    <!-- Login Page -->
-    <div id="loginPage" class="container">
-        <div class="header">
-            <div class="emoji-decoration">🤱💕👶</div>
-            <h1>ระบบบันทึกการฝากครรภ์</h1>
-            <p>🌸 ดูแลสุขภาพแม่และเด็กด้วยความรัก 🌸</p>
-        </div>
-        
-        <div class="emoji-decoration">🌷🦋✨</div>
-        
-        <button id="lineLoginBtn" class="line-login-btn">
-            💝 เข้าสู่ระบบผ่าน LINE 💝
-        </button>
-        
-        <div class="emoji-decoration">🎀🌺💖</div>
-    </div>
+  <h1>เข้าสู่ระบบด้วย LINE</h1>
+  <div id="status">กำลังโหลด...</div>
+  <button id="btnLogin" class="pastel-btn" style="display: none;">เข้าสู่ระบบ 🦋</button>
 
-    <!-- Main App Page -->
-    <div id="mainPage" class="container hidden">
-        <div class="welcome-section">
-            <h2>🌟 ยินดีต้อนรับ 🌟</h2>
-            <div id="userInfo" class="user-info">
-                <p>👋 สวัสดี คุณแม่ <span id="userName"></span></p>
-                <p>🆔 User ID: <span id="userId"></span></p>
-            </div>
-            <div class="emoji-decoration">🤰💝🌈</div>
-        </div>
+  <script>
+    const liffId = "2007693716-B7D4wZow"; // ← ใส่ LIFF ID ที่ได้จาก LINE Developer
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyZ3IAnQopiFCwWNqQcHeExB6WP9x9zmTjPlPlm0YkT6Bjg81k2-0wzCbdiH5ZwjUJM/exec"; // ← ใส่ URL ที่ได้จากการ Deploy Google Apps Script
+    const redirectURL = "https://mchlink.my.canva.site/notepreg"; // ← เปลี่ยนเป็น URL ที่ต้องการ redirect
 
-        <div class="form-section">
-            <form id="pregnancyForm">
-                <div class="form-group">
-                    <label for="name">👩 ชื่อ-นามสกุล</label>
-                    <input type="text" id="name" name="name" placeholder="กรุณาใส่ชื่อ-นามสกุล" required>
-                </div>
+    async function main() {
+      await liff.init({ liffId });
 
-                <div class="form-group">
-                    <label for="appointmentDate">📅 วันที่นัดหมาย</label>
-                    <input type="date" id="appointmentDate" name="appointmentDate" required>
-                </div>
+      if (!liff.isLoggedIn()) {
+        document.getElementById("status").innerText = "กรุณาล็อกอินผ่าน LINE";
+        document.getElementById("btnLogin").style.display = "inline-block";
+        document.getElementById("btnLogin").onclick = () => liff.login();
+      } else {
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
 
-                <div class="form-group">
-                    <label for="age">🎂 อายุ</label>
-                    <input type="number" id="age" name="age" min="1" max="100" placeholder="อายุ" required>
-                </div>
+        document.getElementById("status").innerText = `ยินดีต้อนรับ!`;
 
-                <div class="form-group">
-                    <label for="pregnancyWeeks">🤱 อายุครรภ์ (สัปดาห์)</label>
-                    <input type="number" id="pregnancyWeeks" name="pregnancyWeeks" min="1" max="42" placeholder="จำนวนสัปดาห์" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="pregnancyNumber">👶 ครรภ์ที่</label>
-                    <input type="number" id="pregnancyNumber" name="pregnancyNumber" min="1" placeholder="ครรภ์ที่" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="notes">📝 หมายเหตุ</label>
-                    <textarea id="notes" name="notes" rows="4" placeholder="เช่น อาการที่พบ, คำแนะนำจากแพทย์, ข้อสังเกตอื่นๆ"></textarea>
-                </div>
-
-                <button type="submit" class="submit-btn">
-                    💾 บันทึกข้อมูลการฝากครรภ์
-                </button>
-            </form>
-        </div>
-
-        <button id="logoutBtn" class="logout-btn">
-            🚪 ออกจากระบบ
-        </button>
-    </div>
-
-    <script>
-        let liffUserProfile = null;
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEUJkkWl1UH6PS5_JwryyEt5AwdYfVL2RYqx_G8zrPCcqCA5Nn4fUnIOaBJ1q3OwRI/exec';
-
-        // Initialize LIFF (สำหรับ LINE Login)
-        async function initializeLiff() {
-            try {
-                // สำหรับการทดสอบ - ถ้าไม่มี LIFF ให้ใช้ข้อมูลจำลอง
-                if (typeof liff === 'undefined') {
-                    console.log('LIFF not available, using mock data for testing');
-                    liffUserProfile = {
-                        displayName: 'ผู้ใช้ทดสอบ',
-                        userId: 'test-user-' + Date.now()
-                    };
-                    return;
-                }
-
-                await liff.init({
-                    liffId: 'YOUR_LIFF_ID_HERE' // ใส่ LIFF ID ของคุณที่นี่
-                });
-                
-                if (liff.isLoggedIn()) {
-                    await getUserProfile();
-                }
-            } catch (error) {
-                console.error('LIFF initialization failed:', error);
-                // ใช้ข้อมูลจำลองเมื่อ LIFF ไม่พร้อมใช้งาน
-                liffUserProfile = {
-                    displayName: 'ผู้ใช้ทดสอบ',
-                    userId: 'test-user-' + Date.now()
-                };
-            }
-        }
-
-        // Get user profile from LINE
-        async function getUserProfile() {
-            try {
-                if (typeof liff !== 'undefined' && liff.isLoggedIn()) {
-                    liffUserProfile = await liff.getProfile();
-                } else {
-                    // ใช้ข้อมูลจำลอง
-                    liffUserProfile = {
-                        displayName: 'ผู้ใช้ทดสอบ',
-                        userId: 'test-user-' + Date.now()
-                    };
-                }
-
-                document.getElementById('userName').textContent = liffUserProfile.displayName;
-                document.getElementById('userId').textContent = liffUserProfile.userId;
-                
-                // Save user data to Google Sheets
-                await saveUserToSheet();
-                
-                // Show main page
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('mainPage').classList.remove('hidden');
-                
-                // Add floating emojis
-                addFloatingEmojis();
-                
-            } catch (error) {
-                console.error('Failed to get user profile:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: '💔 เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถดึงข้อมูลผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง',
-                    confirmButtonText: 'ตกลง',
-                    background: '#fff',
-                    color: '#8B4B9C'
-                });
-            }
-        }
-
-        // Save user data to Google Sheets
-        async function saveUserToSheet() {
-            try {
-                const userData = {
-                    action: 'saveUser',
-                    userId: liffUserProfile.userId,
-                    name: liffUserProfile.displayName,
-                    timestamp: new Date().toISOString()
-                };
-
-                await sendToGoogleSheet(userData);
-            } catch (error) {
-                console.error('Failed to save user data:', error);
-            }
-        }
-
-        // Send data to Google Sheets using JSONP
-        function sendToGoogleSheet(data) {
-            return new Promise((resolve, reject) => {
-                const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                
-                window[callbackName] = function(response) {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    resolve(response);
-                };
-                
-                const script = document.createElement('script');
-                const params = new URLSearchParams(data).toString();
-                script.src = `${GOOGLE_SCRIPT_URL}?callback=${callbackName}&${params}`;
-                
-                script.onerror = function() {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    reject(new Error('Script loading failed'));
-                };
-                
-                document.body.appendChild(script);
-            });
-        }
-
-        // Add floating emojis animation
-        function addFloatingEmojis() {
-            const emojis = ['🌸', '🦋', '💕', '✨', '🌺', '💖', '🎀', '🌈', '🌷', '💝', '🤱', '👶'];
-            
-            setInterval(() => {
-                const emoji = document.createElement('div');
-                emoji.className = 'emoji-float';
-                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                emoji.style.left = Math.random() * 100 + '%';
-                emoji.style.top = Math.random() * 100 + '%';
-                emoji.style.animationDelay = Math.random() * 2 + 's';
-                
-                document.body.appendChild(emoji);
-                
-                setTimeout(() => {
-                    if (emoji.parentNode) {
-                        emoji.parentNode.removeChild(emoji);
-                    }
-                }, 4000);
-            }, 2000);
-        }
-
-        // Event Listeners
-        document.getElementById('lineLoginBtn').addEventListener('click', async () => {
-            try {
-                Swal.fire({
-                    title: '💝 กำลังเข้าสู่ระบบ...',
-                    text: 'กรุณารอสักครู่นะคะ 🌸',
-                    icon: 'info',
-                    allowOutsideClick: false,
-                    background: '#fff',
-                    color: '#8B4B9C',
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                if (typeof liff !== 'undefined' && !liff.isLoggedIn()) {
-                    liff.login();
-                } else {
-                    await getUserProfile();
-                    Swal.close();
-                }
-            } catch (error) {
-                console.error('Login failed:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: '💔 เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่อีกครั้ง',
-                    confirmButtonText: 'ตกลง',
-                    background: '#fff',
-                    color: '#8B4B9C'
-                });
-            }
+        // ส่ง userId ไปยัง Apps Script
+        fetch(scriptURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: userId }),
+        })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "success") {
+            window.location.href = redirectURL;
+          } else {
+            alert("เกิดข้อผิดพลาด: " + data.message);
+          }
+        })
+        .catch((err) => {
+          alert("ไม่สามารถส่งข้อมูลได้");
+          console.error(err);
         });
+      }
+    }
 
-        document.getElementById('pregnancyForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // Show loading
-            Swal.fire({
-                title: '💾 กำลังบันทึกข้อมูล...',
-                text: 'กรุณารอสักครู่นะคะ คุณแม่ที่รัก 🌸',
-                icon: 'info',
-                allowOutsideClick: false,
-                background: '#fff',
-                color: '#8B4B9C',
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            try {
-                const formData = new FormData(e.target);
-                const pregnancyData = {
-                    action: 'savePregnancy',
-                    userId: liffUserProfile.userId,
-                    userName: liffUserProfile.displayName,
-                    name: formData.get('name'),
-                    appointmentDate: formData.get('appointmentDate'),
-                    age: formData.get('age'),
-                    pregnancyWeeks: formData.get('pregnancyWeeks'),
-                    pregnancyNumber: formData.get('pregnancyNumber'),
-                    notes: formData.get('notes') || '',
-                    timestamp: new Date().toISOString()
-                };
-
-                await sendToGoogleSheet(pregnancyData);
-                
-                // Success message
-                Swal.fire({
-                    icon: 'success',
-                    title: '🎉 บันทึกสำเร็จแล้ว!',
-                    text: 'ข้อมูลการฝากครรภ์ของคุณได้รับการบันทึกเรียบร้อยแล้วค่ะ ขอให้คุณแม่มีความสุขตลอดการตั้งครรภ์นะคะ 💖',
-                    confirmButtonText: 'ขอบคุณค่ะ',
-                    timer: 5000,
-                    timerProgressBar: true,
-                    background: '#fff',
-                    color: '#8B4B9C'
-                });
-
-                // Reset form
-                e.target.reset();
-                
-            } catch (error) {
-                console.error('Failed to save pregnancy data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: '💔 เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้งนะคะ',
-                    confirmButtonText: 'ตกลง',
-                    background: '#fff',
-                    color: '#8B4B9C'
-                });
-            }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            Swal.fire({
-                title: '🚪 ออกจากระบบ?',
-                text: 'คุณต้องการออกจากระบบใช่หรือไม่คะ?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'ใช่ค่ะ ออกจากระบบ',
-                cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#DDA0DD',
-                cancelButtonColor: '#FFB6C1',
-                background: '#fff',
-                color: '#8B4B9C'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (typeof liff !== 'undefined') {
-                        liff.logout();
-                    }
-                    location.reload();
-                }
-            });
-        });
-
-        // Initialize app when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeLiff();
-            
-            // เพิ่ม floating emojis ทันที
-            addFloatingEmojis();
-        });
-    </script>
+    main();
+  </script>
 </body>
 </html>
